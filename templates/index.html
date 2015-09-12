@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Sonuino Test</title>
+    <link rel="stylesheet" href="static/normalize.css" />
+    <link rel="stylesheet" href="static/index.css" />
+    <style>
+      @media (min-width: 30em) {
+      .row { width: 100%; display: table; table-layout: fixed; }
+      .col { display: table-cell; }
+      }
+    </style>
+  </head>
+  <body>
+    <form class="row" style="height: 16%" id="disconnect" method="POST" action='#'>
+      <span class="col" style="width:30%"></span>
+      <input type="submit" style="width:40%;" value="Desconectar">
+      <span class="col" style="width:30%"></span>
+    </form>
+    <div class="row" style="height: 28%">
+      <span class="col" style="width:30%"></span>
+      <h1 class="col" style="width:40%; text-align:center" id="roll">23º</h1>
+      <span class="col" style="width:30%"></span>
+    </div>
+    <div class="row" style="height:28%">
+      <span class="col" style="width:30%"></span>
+      <h1 class="col" style="width:40%; text-align:center" id="pitch">23º</h1>
+      <span class="col" style="width:30%"></span>
+    </div>
+    <div class="row" style="height:28%">
+      <span class="col" style="width:30%"></span>
+      <h1 class="col" style="width:40%; text-align:center" id="yaw">23º</h1>
+      <span class="col" style="width:30%"></span>
+    </div>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      $(document).ready(function(){
+          namespace = '/test'; // change to an empty string to use the global namespace
+
+          // the socket.io documentation recommends sending an explicit package upon connection
+          // this is specially important when using the global namespace
+          var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+          // event handler for server sent data
+          // the data is displayed in the "Received" section of the page
+          socket.on('my response', function(msg) {
+              $('#roll').html(msg.roll + 'º Roll');
+              $('#pitch').html(msg.pitch + 'º Pitch');
+              $('#yaw').html(msg.yaw + 'º Yaw');
+          });
+
+          $('form#disconnect').submit(function(event) {
+              socket.emit('disconnect request');
+              return false;
+          });
+
+          // event handler for new connections
+          socket.on('connect', function() {
+              socket.emit('my event', {data: 'I\'m connected!'});
+          });
+      });
+    </script>
+  </body>
+</html>
